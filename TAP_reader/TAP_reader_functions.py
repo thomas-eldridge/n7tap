@@ -35,8 +35,10 @@ def do_bitcomp(word, lower_limit, upper_limit):
     Picks out bits from within a 32-bit word. Returns the decimal value
     of the specific bits as if the bit represented by lower_limit were the
     least significant bit possible."""
-    bitcomp = get_bitcomp(lower_limit, upper_limit)
+    ll = 32 - (upper_limit+1)
+    ul = 32 - (lower_limit+1)
+    bitcomp = get_bitcomp(ll, ul)
     retval = word & bitcomp
-    retval = retval >> (32-(upper_limit+1)) # add 1 to upper_limit - avoids shifting important bit out
+    retval = retval >> (32-(ul+1)) # add 1 to upper_limit - avoids shifting important bit out
     return retval
 
