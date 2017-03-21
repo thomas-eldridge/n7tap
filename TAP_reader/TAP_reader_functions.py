@@ -57,3 +57,40 @@ def scan_block(file_pointer, n_words=2322):
         word = change_end(morphemes)
         words[i]=word
     return words
+
+def check_ID(block):
+    """Inputs:
+        - block; a block of words, usually 2322 words long
+    Uses external functions to find the ID of this block as either
+    a header, data record, or a footer. Returns the ID."""
+    foreign_word = block[0]
+    physical_record_number = do_bitcomp(foreign_word, 20, 31)
+    record_ID = do_bitcomp(foreign_word, 8, 15)
+    ID_errors(physical_record_number, record_ID) # raises an error if necessary
+    return record_ID
+
+def ID_errors(number, record_type):
+    """Inputs:
+        - number; the index of the record in the file
+        - record_type; the identifier of the record (10, 11 or 15).
+    If the physical record number does not match those permitted
+    for the record type, raises an error."""
+    error = False
+    if record_type == 10:
+        if number != 1:
+            error = True
+        else:
+            pass
+    elif (record_type == 11) or (record_type == 15):
+        if (number <= 1) or (number >502):
+            error = True
+        else:
+            pass
+    else:
+        pass
+    if error:
+        raise ValueError('Record ID %i does not match record number %i' % (record_type, number))
+    else:
+        pass
+    return
+
