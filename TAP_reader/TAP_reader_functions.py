@@ -13,13 +13,14 @@ def change_end(word_arr):
         word = word | word_arr[i]
     return word
 
-def get_bitcomp(lower_limit, upper_limit):
+def get_bitcomp(lower_limit, upper_limit, word_length=32):
     """Input:
         - upper_limit; the index of the most significant bit to be turned on
         - lower_limit; the index of the least significant bit to be turned on
+        - word_length (default: 32); the number of bits in a standard word
     Assumes all bits in range are on. Returns a number which can be used
     to pick out bits from within a 32-bit word."""
-    bit_arr = np.zeros(32, dtype=int)
+    bit_arr = np.zeros(word_length, dtype=int)
     bit_arr[lower_limit:upper_limit+1] = 1 # add 1 to upper_limit - includes endpoint
     bitcomp = 0
     for i in range(len(bit_arr)):
@@ -42,3 +43,17 @@ def do_bitcomp(word, lower_limit, upper_limit):
     retval = retval >> (32-(ul+1)) # add 1 to upper_limit - avoids shifting important bit out
     return retval
 
+def scan_block(file_pointer, n_words=2322):
+    """Inputs:
+        - file_pointer; a variable which points to the memory location of
+          a .TAP file opened to be read as binary
+        - n_words (default: 2322); the number of words to be interpreted as
+          a single scan block
+    Reads the next (9288 byte) block of data.
+    Returns a list of (2322) 32-bit words, with endianness swapped."""
+    words = np.zeros(n_words, dtype=int)
+    for i in range(len(words)):
+        morphemes = np.fromfile(file_pointer, dtype=np.int8, count=4) # each 32-bit word is made of four 8-bit morphemes
+        word = change_end(morphemes)
+        words[i]=word
+    return words
