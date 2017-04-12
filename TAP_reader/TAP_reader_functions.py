@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 
 # TODO: write word parser
 
@@ -98,4 +97,16 @@ def ID_errors(number, record_type):
     else:
         print 'record number = %i' % number
     return
+
+def twos_compliment(value, bitlength):
+    """Inputs:
+        - value; the raw value of the number to find the compliment of
+        - bitlength; the number of bits about which 2's compliment is to be taken
+    Returns the 2's compliment of value."""
+    positive = value == abs(value)
+    if positive:
+        compliment = value - (2**bitlength)
+    else:
+        compliment = (2**bitlength) + value
+    return compliment
 
