@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 # TODO: write word parser
 
@@ -58,15 +59,19 @@ def scan_block(file_pointer, n_words=2322):
         words[i]=word
     return words
 
-def check_ID(block):
+def check_ID(block, error_catching=True):
     """Inputs:
         - block; a block of words, usually 2322 words long
+        - error_catching; a boolean representing whether or not
+          to raise an error when physical record numbers do not match record IDs
+          (default = True)
     Uses external functions to find the ID of this block as either
     a header, data record, or a footer. Returns the ID."""
     foreign_word = block[0]
     physical_record_number = do_bitcomp(foreign_word, 20, 31)
     record_ID = do_bitcomp(foreign_word, 8, 15)
-    ID_errors(physical_record_number, record_ID) # raises an error if necessary
+    if error_catching:
+        ID_errors(physical_record_number, record_ID) # raises an error if necessary
     return record_ID
 
 def ID_errors(number, record_type):
@@ -91,6 +96,6 @@ def ID_errors(number, record_type):
     if error:
         raise ValueError('Record ID %i does not match record number %i' % (record_type, number))
     else:
-        pass
+        print 'record number = %i' % number
     return
 
