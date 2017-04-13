@@ -110,3 +110,47 @@ def twos_compliment(value, bitlength):
         compliment = (2**bitlength) + value
     return compliment
 
+def treat_block(File, block):
+    """Inputs:
+        - File; an object for storage of Nimbus 7 data and attributes,
+                to be appended to via class methods
+        - block; an array of words representing the TAP block. One of:
+              - header (ID=10),
+              - data (ID=11),
+              - footer (ID=15).
+    Switches to the specific block treatment functions dependent on the block ID."""
+    end = False
+    if check_ID(block) == 10:
+        treat_as_header(block, File)
+    elif check_ID(block) == 11:
+        treat_as_data(block, File)
+    elif check_ID(block) == 143: # may change to 15 later
+        treat_as_footer(block, File)
+        end = True
+    return end
+
+def treat_as_header(block, File):
+    """Inputs:
+        - block; an array of words representing a TAP block. ID should be 10 (header)
+        - File; an object for storage of Nimbus 7 data and attributes,
+                to be appended to via class methods
+        Appends to the File object according to \'header\' rules."""
+
+def treat_as_data(block, File):
+    """Inputs:
+        - block; an array of words representing a TAP block. ID should be 11 (data)
+        - File; an object for storage of Nimbus 7 data and attributes,
+                to be appended to via class methods
+        Appends to the File object according to \'data\' rules."""
+
+def treat_as_footer(block, File):
+    """Inputs:
+        - block; an array of words representing a TAP block. ID should be 143 (footer)
+        - File; an object for storage of Nimbus 7 data and attributes,
+                to be appended to via class methods
+        Appends to the File object according to '/footer'/ rules."""
+
+def write_nc(File):
+    """Inputs:
+        - File; an object for storage of Nimbus 7 data and attributes
+    Writes the File object to a NetCDF."""

@@ -1,4 +1,5 @@
 from TAP_reader_functions import *
+from Data import Data
 
 def read_TAP_file(filename):
     """Inputs:
@@ -11,8 +12,5 @@ def read_TAP_file(filename):
     File = Data()
     while not end:
         block = scan_block(f, n_words=2324) # unit test MUST make sure that this n_words is appropriate for all cases
-        id = check_ID(block)
-        if id == 143:
-            end = True
-        treat_block(File, id)
+        end = treat_block(File, block)
     write_nc(File)
