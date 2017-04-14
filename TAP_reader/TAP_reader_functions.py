@@ -20,7 +20,7 @@ def get_bitcomp(lower_limit, upper_limit, word_length=32):
         - word_length (default: 32); the number of bits in a standard word
     Assumes all bits in range are on. Returns a number which can be used
     to pick out bits from within a 32-bit word."""
-    bit_arr = np.zeros(word_length, dtype=int)
+    bit_arr = np.zeros(word_length, dtype=np.int64)
     bit_arr[lower_limit:upper_limit+1] = 1 # add 1 to upper_limit - includes endpoint
     bitcomp = 0
     for i in range(len(bit_arr)):
@@ -110,7 +110,7 @@ def twos_compliment(value, bitlength):
         compliment = (2**bitlength) + value
     return compliment
 
-def treat_block(File, block):
+def treat_block(File, block, error_catching=True):
     """Inputs:
         - File; an object for storage of Nimbus 7 data and attributes,
                 to be appended to via class methods
@@ -120,11 +120,11 @@ def treat_block(File, block):
               - footer (ID=15).
     Switches to the specific block treatment functions dependent on the block ID."""
     end = False
-    if check_ID(block) == 10:
+    if check_ID(block, error_catching) == 10:
         treat_as_header(block, File)
-    elif check_ID(block) == 11:
+    elif check_ID(block, error_catching) == 11:
         treat_as_data(block, File)
-    elif check_ID(block) == 143: # may change to 15 later
+    elif check_ID(block, error_catching) == 143: # may change to 15 later
         treat_as_footer(block, File)
         end = True
     return end
