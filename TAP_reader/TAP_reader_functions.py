@@ -1,4 +1,5 @@
 import numpy as np
+import pdb
 
 # TODO: write word parser
 
@@ -53,10 +54,21 @@ def scan_block(file_pointer, n_words=2322):
     Returns a list of (2322) 32-bit words, with endianness swapped."""
     words = np.zeros(n_words, dtype=int)
     for i in range(len(words)):
-        morphemes = np.fromfile(file_pointer, dtype=np.int8, count=4) # each 32-bit word is made of four 8-bit morphemes
+        morphemes = get_morphemes(file_pointer)
         word = change_end(morphemes)
         words[i]=word
     return words
+
+def get_morphemes(pointer):
+    bytes = np.fromfile(pointer, dtype=np.int8, count=4)  # each 32-bit word is made of four 8-bit morphemes
+    morphemes = np.zeros(bytes.shape, dtype=np.int16)
+    for i in range(len(bytes)):
+        if bytes[i] != abs(bytes[i]):
+            morpheme = twos_complement(abs(bytes[i]),8)
+            morphemes[i] = morpheme
+        else:
+            morphemes[i] = bytes[i]
+    return morphemes
 
 def check_ID(block, error_catching=True):
     """Inputs:
@@ -98,17 +110,29 @@ def ID_errors(number, record_type):
         print 'record number = %i' % number
     return
 
-def twos_compliment(value, bitlength):
+def flip_bits(value, N):
+    """Inputs:
+        - value; an integer with bit length less than N
+        - N; the number of bits about which bits should be flipped
+    For an N-bit number, turns the on bits off and the off bits on."""
+    bits = np.zeros((N), bool)
+    for i in range(len(bits)):
+        bits[i] = value & 1
+        value = value >> 1
+    new_value = 0
+    for bit in ~bits[::-1]:
+        new_value = new_value << 1
+        new_value = new_value | bit
+    return new_value
+
+def twos_complement(value, bitlength):
     """Inputs:
         - value; the raw value of the number to find the compliment of
         - bitlength; the number of bits about which 2's compliment is to be taken
     Returns the 2's compliment of value."""
-    positive = value == abs(value)
-    if positive:
-        compliment = value - (2**bitlength)
-    else:
-        compliment = (2**bitlength) + value
-    return compliment
+    new_val = flip_bits(value, bitlength)
+    new_val += 1
+    return new_val
 
 def treat_block(File, block, error_catching=True):
     """Inputs:
