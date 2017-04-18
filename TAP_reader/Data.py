@@ -1,4 +1,5 @@
 import datetime as dt
+import TAP_reader_functions as tap
 import numpy as np
 
 class Data:
@@ -28,3 +29,10 @@ class Data:
     #       - treat_as_data
     #       - treat_as_footer
     #   functions
+    def add_record(self, swath_block):
+        """Inputs:
+            - swath_block; a block of THIR data words
+        Appends the record number and ID to the appropriate attributes of the Data object."""
+        id_no, rec_no = tap.check_ID(swath_block, False)
+        self.record_number.append(rec_no)
+        self.record_id.append(id_no)
