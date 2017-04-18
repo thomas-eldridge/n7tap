@@ -1,6 +1,7 @@
 from TAP_reader.TAP_reader_functions import *
 from TAP_reader.Data import Data
 import nose.tools as ns
+import datetime as dt
 
 def test_change_end(): # passes on my machine
     """Numerous checks have encouraged me to believe that the change_end() function behaves as expected;
@@ -41,4 +42,13 @@ def test_Data_add_record():
     The_Object.add_record(the_block)
     ns.assert_equal(The_Object.record_id[0], 10)
     ns.assert_equal(The_Object.record_number[0], 1)
+
+def test_Data_make_datetime():
+    """The data object should be able to make a datetime object from three input parameters. Check this."""
+    The_Object = Data()
+    year = 1978
+    day_of_year = 340
+    msec = 1000
+    the_dt = The_Object.make_datetime(year, day_of_year, msec)
+    ns.assert_equal(the_dt, dt.datetime(1978, 12, 6, second=1))
 

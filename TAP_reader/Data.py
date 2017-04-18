@@ -36,3 +36,29 @@ class Data:
         id_no, rec_no = tap.check_ID(swath_block, False)
         self.record_number.append(rec_no)
         self.record_id.append(id_no)
+    def make_datetime(self, year, day, msec):
+        """Inputs:
+            - year; the year in which data was collected
+            - day; the day of the year at which data was collected
+            - msec; the number of milliseconds since the start of the day
+        Makes a datetime object out of the information provided."""
+        retval = dt.datetime(year, 01, 01)
+        retval += dt.timedelta(days=(day-1))
+        retval += dt.timedelta(milliseconds=msec) # TEST THAT msec IS INDEED MILLISECONDS (COULD ALSO BE MICROSECONDS)
+        return retval
+    def set_header(self, swath_block):
+        """Inputs:
+            - swath_block; a block of THIR data words
+        Block words must correspond to a header (ID=10). Words from the block are set as object attributes."""
+        self.file_number = swath_block[1]
+        self.orbit_number = swath_block[2]
+        self.start_dt = self.make_datetime(swath_block[3], swath_block[4], swath_block[5])
+        self.stop_dt = self.make_datetime(swath_block[6], swath_block[7], swath_block[8])
+        self.south_dt = self.make_datetime(swath_block[9], swath_block[10], swath_block[11])
+        self.north_dt = self.make_datetime(swath_block[12], swath_block[13], swath_block[14])
+        self.descent_lon = swath_block[15]/10.
+        self.ascent_lon = swath_block[16]/10.
+        self.anode_dt = self.make_datetime(swath_block[17], swath_block[18], swath_block[19])
+        self.solar_dec = swath_block[20]/1000.
+        self.vapour_table = self.make_lookup_table(swath_block[21:149]) # check number of elements
+        self.window_table = self.make_lookup_table(swath_block[21:149]) # check number of elements
