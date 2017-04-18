@@ -1,8 +1,5 @@
 import numpy as np
 
-# TODO: inspect anomalously negative numbers in scan_block()
-# TODO: write word parser
-
 def change_end(word_arr):
     """Inputs:
         - word_arr; an array containing the four bytes
@@ -52,7 +49,7 @@ def scan_block(file_pointer, n_words=2322):
           a single scan block
     Reads the next (9288 byte) block of data.
     Returns a list of (2322) 32-bit words, with endianness swapped."""
-    words = np.zeros(n_words, dtype=int)
+    words = np.zeros(n_words, dtype=np.int64)
     for i in range(len(words)):
         morphemes = get_morphemes(file_pointer)
         word = change_end(morphemes)
@@ -168,7 +165,8 @@ def treat_as_header(block, File):
         - File; an object for storage of Nimbus 7 data and attributes,
                 to be appended to via class methods
         Appends to the File object according to \'header\' rules."""
-
+    File.set_header(block)
+    return
 
 def treat_as_data(block, File):
     """Inputs:
@@ -176,6 +174,7 @@ def treat_as_data(block, File):
         - File; an object for storage of Nimbus 7 data and attributes,
                 to be appended to via class methods
         Appends to the File object according to \'data\' rules."""
+    File.set_data(block)
 
 def treat_as_footer(block, File):
     """Inputs:
@@ -183,6 +182,7 @@ def treat_as_footer(block, File):
         - File; an object for storage of Nimbus 7 data and attributes,
                 to be appended to via class methods
         Appends to the File object according to '/footer'/ rules."""
+    File.set_footer(block)
 
 def write_nc(File):
     """Inputs:

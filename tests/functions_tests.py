@@ -52,3 +52,10 @@ def test_Data_make_datetime():
     the_dt = The_Object.make_datetime(year, day_of_year, msec)
     ns.assert_equal(the_dt, dt.datetime(1978, 12, 6, second=1))
 
+def test_Data_make_lookup_table():
+    """Need to find out exactly how the lookup table is constructed."""
+    The_Object = Data()
+    f = open('../input/1978/340/Nimbus7-THIRCLDT_1978m1206t015025_o00592_DR6287.TAP', 'rb')
+    np.fromfile(f, dtype=np.int32, count=1)
+    block = scan_block(f, n_words=2324)
+    The_Object.set_header(block)
