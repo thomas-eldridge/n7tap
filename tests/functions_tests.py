@@ -1,10 +1,15 @@
 from TAP_reader.TAP_reader_functions import *
-import random as rand
+from TAP_reader.Data import Data
 import nose.tools as ns
 
-#def test_change_end():
-    # how to test this?
-    # remember that I want to guarantee that it works INCLUDING for the signbit
+def test_change_end(): # passes on my machine
+    """Numerous checks have encouraged me to believe that the change_end() function behaves as expected;
+    the only test that needs to be passed is to make sure that the resultant 32-bit word is not affected by a signbit,
+    i.e. that if the MSB of word_arr[0] is 1, this does not make the result negative."""
+    word_arr = np.zeros(4, np.int16)
+    word_arr[0] = 128
+    word = change_end(word_arr)
+    ns.assert_equal(2**31, word)
 
 def test_get_bitcomp():
     """Here, get_bitcomp() is tested for each individual bit being turned on."""
@@ -27,6 +32,13 @@ def test_do_bitcomp():
         val = 2**(32-n) - 1
         ns.assert_equal(comp, val)
 
-def test_scan_block():
-    pass
+def test_Data_add_record():
+    """Checks that, given a correct output from scan_block, the record_number and record_id attributes of
+    the Data object are correctly appended to."""
+    The_Object = Data() # declares an empty Data object
+    the_block = np.zeros(100, dtype=np.int32) # doesn't matter how long the block is, as long as the first elements are correct
+    the_block[0] = change_end([0, 16, 10, 0])
+    The_Object.add_record(the_block)
+    ns.assert_equal(The_Object.record_id[0], 10)
+    ns.assert_equal(The_Object.record_number[0], 1)
 
