@@ -92,7 +92,7 @@ def check_ID(block, error_catching=True):
     record_ID = do_bitcomp(foreign_word, 8, 15)
     if error_catching:
         ID_errors(physical_record_number, record_ID) # raises an error if necessary
-    return record_ID
+    return record_ID, physical_record_number
 
 def ID_errors(number, record_type):
     """Inputs:
@@ -153,11 +153,11 @@ def treat_block(File, block, error_catching=True):
               - footer (ID=15).
     Switches to the specific block treatment functions dependent on the block ID."""
     end = False
-    if check_ID(block, error_catching) == 10:
+    if check_ID(block, error_catching)[0] == 10:
         treat_as_header(block, File)
-    elif check_ID(block, error_catching) == 11:
+    elif check_ID(block, error_catching)[0] == 11:
         treat_as_data(block, File)
-    elif check_ID(block, error_catching) == 143: # may change to 15 later
+    elif check_ID(block, error_catching)[0] == 143: # may change to 15 later
         treat_as_footer(block, File)
         end = True
     return end
@@ -168,6 +168,7 @@ def treat_as_header(block, File):
         - File; an object for storage of Nimbus 7 data and attributes,
                 to be appended to via class methods
         Appends to the File object according to \'header\' rules."""
+
 
 def treat_as_data(block, File):
     """Inputs:
