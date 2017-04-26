@@ -52,6 +52,16 @@ class Data:
             new_words[2*i] = tap.do_bitcomp(words[i], 16, 31)/64.
             new_words[(2*i)+1] = tap.do_bitcomp(words[i], 0, 15)/64.
         return new_words
+    def make_scan_blocks(self, words):
+        """Inputs:
+            - words; a numpy array of 2310 words
+        Loops to prepare 10 scan blocks from the 2310 words."""
+        for i in range(len(10)):
+            self.prepare_scan_block(words[10*i, 10*i + 231])
+    def prepare_scan_block(self, words):
+        """Inputs:
+            - words; a numpy array of 231 words
+        I don't know what this will do."""
     def set_header(self, swath_block):
         """Inputs:
             - swath_block; a block of THIR data words
@@ -74,6 +84,8 @@ class Data:
             - swath_block; a block of THIR data words
         Block words must correspond to data (ID=11). Words from the block are set as object attributes."""
         self.add_record(swath_block)
+        self.make_scan_blocks(swath_block[1:2310])
+
     def set_footer(self, swath_block):
         """Inputs:
             - swath_block; a block of THIR data words
