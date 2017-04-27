@@ -59,3 +59,36 @@ def test_Data_make_lookup_table():
     np.fromfile(f, dtype=np.int32, count=1)
     block = scan_block(f, n_words=2324)
     The_Object.set_header(block)
+
+def test_a_type_arr():
+    word0 = 2147483658      # 1000 0000 0000 0000 0000 0000 0000 1010
+    word1 = 10              # 0000 0000 0000 0000 0000 0000 0000 1010
+    word2 = 524303          # 0000 0000 0000 1000 0000 0000 0000 1111
+    The_Object = Data()
+    the_array = The_Object.a_type_arr([word0, word1, word2])
+    right_answer = [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]
+    ns.assert_equal(len(the_array), len(right_answer))
+    for i in range(len(the_array)):
+        ns.assert_equal(the_array[i], right_answer[i])
+
+def test_b_type_arr():
+    word0 = 2147516426      # 1000 0000 0000 0000 1000 0000 0000 1010
+    word1 = 10              # 0000 0000 0000 0000 0000 0000 0000 1010
+    word2 = 524289          # 0000 0000 0000 1000 0000 0000 0000 0001
+    The_Object = Data()
+    the_array = The_Object.b_type_arr([word0, word1, word2])
+    right_answer = [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+    ns.assert_equal(len(the_array), len(right_answer))
+    for i in range(len(the_array)):
+        ns.assert_equal(the_array[i], right_answer[i])
+
+def test_get_byte():
+    bits = [0,1,0,1,0,1,0,0]
+    byte = 84
+    The_Object = Data()
+    ans = The_Object.get_byte(bits)
+    ns.assert_equal(ans, byte)
