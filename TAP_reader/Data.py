@@ -1,7 +1,6 @@
 import datetime as dt
 import TAP_reader_functions as tap
 import numpy as np
-import matplotlib.pyplot as plt # for testing and investigating
 
 class Data:
     def __init__(self):
