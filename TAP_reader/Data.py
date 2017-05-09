@@ -11,12 +11,13 @@ class Data:
         end = False
         while not end:
             block = self.scan_block(f, n_words=2324) # unit test MUST make sure that this n_words is appropriate for all cases
-            if self.check_ID(block, True)[0] == 10:
+            id, no = self.check_ID(block, True)
+            if id == 10:
                 od_eq = Doc_Rec(block)
                 self.documentation_record = od_eq
-            elif self.check_ID(block, True)[0] == 11:
+            elif id == 11:
                 self.data_records.append(Data_Rec(block, od_eq))
-            elif self.check_ID(block, True)[0] == 143:  # may change to 15 later
+            elif id == 143:  # may change to 15 later
                 self.dummy_records.append(Dummy_Rec(block))
                 end = True
     def scan_block(self, file_pointer, n_words=2322):
@@ -149,11 +150,6 @@ class Data:
         else:
             print 'record number = %i' % number
         return
-    def set_footer(self, swath_block):
-        """Inputs:
-            - swath_block; a block of THIR data words
-        Block words must correspond to a footer (ID=15). Words from the block are set as object attributes."""
-        self.add_record(swath_block)
 
 class Doc_Rec:
     def __init__(self, block):
@@ -285,6 +281,20 @@ class Dummy_Rec:
         id, number = self.check_ID(block)
         self.record_number = number
         self.record_id = id
+    def check_ID(self, block, error_catching=True):
+        """Inputs:
+            - block; a block of words, usually 2322 words long
+            - error_catching; a boolean representing whether or not
+              to raise an error when physical record numbers do not match record IDs
+              (default = True)
+        Uses external functions to find the ID of this block as either
+        a header, data record, or a footer. Returns the ID."""
+        foreign_word = block[0]
+        physical_record_number = self.do_bitcomp(foreign_word, 20, 31)
+        record_ID = self.do_bitcomp(foreign_word, 8, 15)
+        if error_catching:
+            self.ID_errors(physical_record_number, record_ID)  # raises an error if necessary
+        return record_ID, physical_record_number
 
 class Scan_Block:
     def __init__(self, words, od_eq):
