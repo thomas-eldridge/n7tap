@@ -1,5 +1,6 @@
 import datetime as dt
 import numpy as np
+import matplotlib.pyplot as plt # for testing/investigating
 
 class Data:
     def __init__(self, filename):
@@ -11,9 +12,10 @@ class Data:
         while not end:
             block = self.scan_block(f, n_words=2324) # unit test MUST make sure that this n_words is appropriate for all cases
             if self.check_ID(block, True)[0] == 10:
-                self.documentation_record = Doc_Rec(block)
+                od_eq = Doc_Rec(block)
+                self.documentation_record = od_eq
             elif self.check_ID(block, True)[0] == 11:
-                self.data_records.append(Data_Rec(block))
+                self.data_records.append(Data_Rec(block, od_eq))
             elif self.check_ID(block, True)[0] == 143:  # may change to 15 later
                 self.dummy_records.append(Dummy_Rec(block))
                 end = True
@@ -228,14 +230,14 @@ class Doc_Rec:
         return new_words
 
 class Data_Rec:
-    def __init__(self, block):
+    def __init__(self, block, od_eq):
         id, number = self.check_ID(block)
         self.record_number = number
         self.record_id = id
         self.scan_blocks = []
         sub_block = np.delete(block, 0)
         for i in range(10):
-            self.scan_blocks.append(Scan_Block(sub_block[231*i:(231*i)+231]))
+            self.scan_blocks.append(Scan_Block(sub_block[231*i:(231*i)+231], od_eq))
         # add engineering and housekeeping data
     def check_ID(self, block):
         """Inputs:
@@ -285,14 +287,14 @@ class Dummy_Rec:
         self.record_id = id
 
 class Scan_Block:
-    def __init__(self, words):
+    def __init__(self, words, od_eq):
         self.nadir_time = self.do_bitcomp(words[0], 16, 31)
         self.flags = self.do_bitcomp(words[0], 0, 15)
         self.radiance_blocks = []
-        sub_words = np.delete(words, [0, 1]) # removes the first two words
+        sub_words = np.delete(words, 0) # removes the first word
         words_as_bytes = self.get_words_as_bytes(sub_words)  # should be 230 words
         for i in range(92):
-            self.radiance_blocks.append(Rad_Block(words_as_bytes[10*i:(10*i)+10]))
+            self.radiance_blocks.append(Rad_Block(words_as_bytes[10*i:(10*i)+10], od_eq))
     def do_bitcomp(self, word, lower_limit, upper_limit):
         """Input:
             - word; the 32-bit word from which bits are to be extracted
@@ -325,7 +327,7 @@ class Scan_Block:
         """Inputs:
             - words; an array of words to be converted to bytes
         Each word is 32 bits long, so we should broduce 4x as many bytes as words."""
-        byte_array = np.zeros(len(words)*4, dtype=np.int16) # should be 920
+        byte_array = np.zeros(len(words)*4, dtype=np.int16) # should have len = 920
         for i in range(len(words)):
             for j in range(4):
                 shifter = 8*j
@@ -334,22 +336,42 @@ class Scan_Block:
         return byte_array
 
 class Rad_Block():
-    def __init__(self, the_bytes):
+    def __init__(self, the_bytes, od):
         self.latitude = self.get_coord(the_bytes[0:2])
         self.longitude = self.get_coord(the_bytes[2:4])
         self.window_rads = []
         self.vapour_rads = []
+        self.window_temps = []
+        self.vapour_temps = []
+        temps_arr = self.lookup_temps(the_bytes[4:], od)
         self.window_rads.append(the_bytes[4]/8.)
+        self.window_temps.append(temps_arr[0])
         self.vapour_rads.append(the_bytes[5]/64.)
+        self.vapour_temps.append(temps_arr[1])
         self.window_rads.append(the_bytes[6]/8.)
+        self.window_temps.append(temps_arr[2])
         self.window_rads.append(the_bytes[7]/8.)
+        self.window_temps.append(temps_arr[3])
         self.vapour_rads.append(the_bytes[8]/64.)
+        self.vapour_temps.append(temps_arr[4])
         self.window_rads.append(the_bytes[9]/8.)
+        self.window_temps.append(temps_arr[5])
     def get_coord(self, coord_bytes):
         word = (coord_bytes[0]<<8)|coord_bytes[1]
         int_part = (word & 0b1111111110000000) >> 7
         float_part = (word & 0b1111111)/128.
         coord = int_part + float_part
         return coord
+    def lookup_temps(self, some_bytes, od):
+        window_lookup = od.window_table
+        vapour_lookup = od.vapour_table
+        return_temps = []
+        return_temps.append(window_lookup[int(some_bytes[0])])
+        return_temps.append(vapour_lookup[int(some_bytes[1])])
+        return_temps.append(window_lookup[int(some_bytes[2])])
+        return_temps.append(window_lookup[int(some_bytes[3])])
+        return_temps.append(vapour_lookup[int(some_bytes[4])])
+        return_temps.append(window_lookup[int(some_bytes[5])])
+        return return_temps
 
 
