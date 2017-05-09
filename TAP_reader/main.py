@@ -1,4 +1,3 @@
-from TAP_reader_functions import *
 from Data import Data
 
 def read_TAP_file(filename):
